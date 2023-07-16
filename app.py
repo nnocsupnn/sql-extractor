@@ -4,7 +4,7 @@ import pyodbc as db
 import os
 import datetime as dt
 import random
-
+from windows import chooseFolder, open_file
 
 def getResults(query):
     cnxn = db.connect('Driver={SQL Server};'
@@ -15,53 +15,6 @@ def getResults(query):
 
     df = pd.read_sql(query, cnxn)
     return df
-
-def chooseFolder():
-    fileChooser = [
-            [sg.Text("Select folder path"),
-            sg.Input(key="folderPath", disabled=True),
-            sg.FolderBrowse(target="folderPath")],
-            [sg.Push(), sg.Button("OK")],
-        ]
-
-    fileChooserWindow = sg.Window('Choose folder to SAVE', fileChooser)
-
-    filename = ""
-    while True:
-        event, values = fileChooserWindow.read()
-        if event in (sg.WIN_CLOSED, "Exit"):
-            break
-        elif event == "OK":
-            filename = values['folderPath']
-            break
-
-    fileChooserWindow.close()
-    
-    return filename
-
-
-def openFile(filePath):
-    openFileLayout = [
-        [sg.Titlebar("Report Extracted")],
-        [sg.Text("File is extracted [" + filePath + "]")],
-        [sg.Button('Open file'), sg.Button('Close')]
-    ]
-
-    openFileWindow = sg.Window('Report Extracted', layout=openFileLayout)
-
-    while True:
-        event, values = openFileWindow.read()
-        if event in (sg.WIN_CLOSED, "Exit"):
-            openFileWindow.close()
-            break
-        elif event == 'Close':
-            openFileWindow.close()
-            break
-        elif event == "Open file":
-            os.startfile(filePath)
-            break
-
-    openFileWindow.close()
 
 
 def save(format, df, filePath):
@@ -98,9 +51,6 @@ layout = [
 
 window = sg.Window('Report Generator', layout=layout, finalize=True)
 
-def handleFolder(event):
-    print(event)
-
 
 df = None
 while True:
@@ -133,37 +83,3 @@ while True:
             openFile(filePath)
     except Exception as e:
         sg.popup_error_with_traceback("Something went wrong.", e)
-
-# try:
-#     df = getResults(query)
-
-#     if df.empty:
-#         sg.popup_auto_close(title="Empty", message="Result is empty.")
-#     else:
-#         event, values = window.read()
-#         print(df.shape[0])
-#         window['resultCount'].update(df.shape[0])
-#         fileChooser = [
-#             [sg.Text("Select folder path"),
-#             sg.Input(key="folderPath", disabled=True),
-#             sg.FolderBrowse(target="folderPath")],
-#             [sg.Button("Submit")],
-#         ]
-
-#         fileChooserWindow = sg.Window('Choose folder to SAVE', fileChooser)
-
-#         filename = ""
-#         while True:
-#             event, values = fileChooserWindow.read()
-#             if event in (sg.WIN_CLOSED, "Exit"):
-#                 break
-#             elif event == "Submit":
-#                 filename = values['folderPath']
-#                 break
-
-#         fileChooserWindow.close()
-#         filePath = os.path.join(filename, 'report_' + dt.datetime.now().strftime("%Y_%m_%d_%H_%M_%S") + '.xlsx')
-#         df.to_excel(filePath, index=False)
-#         os.startfile('report.xlsx')
-# except Exception as e:
-#     sg.popup_error_with_traceback("Something went wrong.", e)
