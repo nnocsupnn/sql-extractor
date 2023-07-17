@@ -4,7 +4,7 @@ import pyodbc as db
 import os
 import datetime as dt
 import random
-from windows import chooseFolder, open_file
+from layouts import chooseFolder, openFile
 
 def getResults(query):
     cnxn = db.connect('Driver={SQL Server};'
@@ -32,7 +32,8 @@ def save(format, df, filePath):
 theme_name_list = sg.theme_list()
 randomTheme = theme_name_list[random.randint(0, len(theme_name_list) - 1)]
 
-sg.theme('SandyBeach')   # Add a touch of color
+print("Theme " + randomTheme)
+sg.theme('Dark2')   # Add a touch of color
 # All the stuff inside your window.
 layout = [  
             [sg.Text('SQL Script'), sg.Push(), sg.Text(key="resultCount", text_color='red', text="0"), sg.Text(text='row(s)', text_color='red')],
@@ -77,6 +78,9 @@ while True:
             folderPath = values['folderPath']
             if folderPath == None:
                 folderPath = chooseFolder()
+                
+            if folderPath == "./":
+                folderPath = ""
 
             filePath = os.path.join(folderPath, 'report_' + dt.datetime.now().strftime("%Y_%m_%d_%H_%M_%S") + '.' + values['format'])
             save(values['format'], df, filePath)
